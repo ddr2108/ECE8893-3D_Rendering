@@ -1,0 +1,56 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%Global Variables%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%Light
+lightPosition = [0 0 0];
+lightColor = [0 0 0];
+ambientLightColor = [0 0 0];
+emissiveColor = [.5 .5 .5]; % gray
+diffueseColor = [];
+specularColor = [];
+
+%Camera
+cameraPosition = [0 0 0];
+cameraPoint = [0 0 0];
+
+%Object
+objectPosition = [0 0 0];
+objectOrientation = [90 90 90];    %degrees
+
+%Other
+fieldOfView = 90;
+nearFustrum = 1;
+farFustrum = 100;
+aspectRatio = 1
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+sceneData = importdata('shuttle_breneman_whitfield.raw');   %Get shuttle data
+
+%Rotation
+rotX = [1 0 0 0;
+        0 cosd(objectOrientation(3)) sind(objectOrientation(3)) 0; 
+        0 -sind(objectOrientation(3)) cosd(objectOrientation(3)) 0;
+        0 0 0 1];
+    
+rotY = [cosd(objectOrientation(3)) sind(objectOrientation(3)) 0 0; 
+        -sind(objectOrientation(3)) cosd(objectOrientation(3)) 0 0;
+        0 0 1 0;...
+        0 0 0 1];
+
+rotZ = [cosd(objectOrientation(3)) sind(objectOrientation(3)) 0 0; 
+        -sind(objectOrientation(3)) cosd(objectOrientation(3)) 0 0;
+        0 0 1 0;...
+        0 0 0 1];
+
+
+%World Transformation
+
+%View Transformation
+
+%Projection Transformation
+
+%Perspective Effect
+
+%Lighting
+
+patch([3 4 6],[-4 -3 -6],[1 0 0]);
