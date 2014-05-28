@@ -3,7 +3,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%GLOBAL VARIABLES%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Light
-lightPosition = [10 -5 10];
+lightPosition = [10 10 -10];
 lightColor = [0.52 0.62 0.52];
 
 %Light Effects
@@ -20,10 +20,10 @@ cameraPoint = [0 0 0];
 
 %Object
 objectPosition = [5 0 0];
-objectOrientation = [180 0 0];    %degrees
+objectOrientation = [90 0 0];    %degrees
 
 %Other
-fieldOfView = 120;
+fieldOfView = 20;
 fustrum = [25 50];    %[near far]
 aspectRatio = 1;
 
@@ -132,7 +132,7 @@ for i = 1:length(sceneData)
     lighting = ambientLighting + diffuseLighting + specularLighting + emissiveLighting;
     
    %%%%%%%%%%%%%%%%%%%VIEW AND PROJECTION TRANFORMATION%%%%%%%%%%%%%%%
-    triangle = triangle * viewProjMatrix %Apply view and projection
+    triangle = triangle * viewMatrix*projectionMatrix %Apply view and projection
 
     %%%%%%%%%%%%%%%%%%%%DIVIDE BY W%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     for j=1:3
@@ -145,21 +145,8 @@ for i = 1:length(sceneData)
     modifiedSceneData = [modifiedSceneData; triangleDataPoint];
 end
 
-% %%%%%%%%%%%%%%%%%%%%%%%%Z SORTING%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     z_sort = [];
-%     for i = 1:3:3*row 
-%      zPoints = [ C(i,:) (C(i,3)+C(i+1,3)+C(i+1,3))/3 ];
-%     end
-%     z_values = sortrows(z_values,-4);
-%     z_values(:,4) = [];
-% 
-%     C = z_values;
-%     for i =1 :3:3*row
-%      H  =          [  C(i,1) ;   C(i+1,1)   ;     C(i+2,1)];
-%              G =   [  C(i,2)   ;   C(i+1,2)   ;     C(i+2,2)];
-%              N =   [  C(i,3)   ;   C(i+1,3)   ;    C(i+2,3)] ;  
-%              patch(H,G,N,color_info(i,:));    
-%      end
+%%%%%%%%%%%%%%%%%%%%%%%%%Z SORTING%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+modifiedSceneData = sortrows(modifiedSceneData, -1)
 
 %%%%%%%%%%%%%%%%%%%%%%CLIPPING%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 finalSceneData = [];
