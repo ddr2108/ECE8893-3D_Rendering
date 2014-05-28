@@ -1,13 +1,16 @@
+%Left Hand System, -z camera
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%GLOBAL VARIABLES%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Light
-lightPosition = [0 0 0];
-lightColor = [0 0 0];
-ambientLightColor = [0.5 0.5 0.5];
-ambientM = [0 0 0];
-emissiveM = [.5 .5 .5];
-diffuseM = [.05 .05 .05];
-specularM = [.3 .3 .3];
+lightPosition = [10 -5 10];
+lightColor = [0.52 0.62 0.52];
+ambientLightColor = [0.2 0.2 0.2];
+ambientM = [0.21 0.31 0.31];
+emissiveM = [0.21 0.30 0.43];
+diffuseM = [0.52 0.62 0.52];
+specularM = [0.54 0.35 0.46];
+S = 4;
 
 %Camera
 cameraPosition = [100 100 -100];
@@ -15,7 +18,7 @@ cameraPoint = [0 0 0];
 
 %Object
 objectPosition = [5 0 0];
-objectOrientation = [0 0 0];    %degrees
+objectOrientation = [180 0 0];    %degrees
 
 %Other
 fieldOfView = 80;
@@ -79,57 +82,58 @@ viewProjMatrix = viewMatrix;       %Combine the view and projection matrix
 
 %Perspective Effect
 
-%Lighting
-%     %ambient
-%     lighting = ambient .* ambientMat;
-%     
-%     %diffuse
-%     maxVal = max(dot(points(1, 1:3) - lightPos, normal), 0);
-%     cDiff = maxVal * lightColor .* diffuseMat;
-%     lighting = lighting + cDiff;
-%     
-%     %specular
-%     v1 = mean(points(:, 1:3)) - lightPos;
-%     v2 = mean(points(:, 1:3)) - cameraPos;
-%     hNorm = (v1 + v2) ./ abs(v1 + v2);
-%     hNorm = hNorm / norm(hNorm);
-%     cSpec = max(dot(normal, hNorm), 0) ^ S * lightColor .* specularMat;
-%     lighting = lighting + cSpec;
-%     
-%     %emissive
-%     lighting = lighting + emissiveMat;
-
 %Apple to all points
 for i = 1:length(sceneData)
     %Get a triangle
     triangle = [sceneData(i, 1:3) 1; sceneData(i, 4:6) 1; sceneData(i, 7:9) 1];
     
-    %World Translation
+    %%%%%%%%%%%%%%%%%%%WORLD TRANSLATION%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     triangle = triangle * worldTranslationMatrix;   %Translate into world space
     triangle = triangle * rotationMatrix; %Rotate in world space
     
-    %Lighting
+    %%%%%%%%%%%%%%%%%%%VECTOR CALCULATION%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %Get the normal
+    v1 = triangle(2, 1:3) - triangle(1, 1:3);
+    v2 = triangle(3, 1:3) - triangle(1, 1:3);
+    normalVector = cross(v1, v2);
+    normalVector = normalVector / norm(normalVector);
+    
+    %Get the light angle
+    center = [sum(triangle(1:3,1)) sum(triangle(1:3,2)) sum(triangle(1:3,3))]./3;
+    lightVector = lightPosition - center;
+    lightVector = lightVector/norm(lightVector);
+    
+    %Get the eye angle
+    eyeVector = cameraPosition - center;
+    eyeVector = eyeVector/norm(eyeVector);
+
+    %%%%%%%%%%%%%%%%%%%Lighting%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %ambient lighting
-    lighting = ambientLightColor*ambientM;
+    ambientLighting = ambientLightColor.*ambientM;
     
     %diffuse lighting
-    lighting = lighting + lightColor*diffuseM;
+    diffuseLighting = max(dot(lightVector, normalVector),0)*(lightColor.*diffuseM)
 
     %specular lighting
-    lighting = lighting + lightColor*specularM;
+    hVector = (eyeVector + lightVector) ./ abs(eyeVector + lightVector);
+    hVector = hVector / norm(hVector);
+    specularLighting = max(dot(normalVector, hVector), 0)^S * (lightColor .* specularM);
 
     %emissinve lighting
-    lighting = lighting + emissiveM;
+    emissiveLighting = emissiveM;
     
+    %total lighting
+    lighting = ambientLighting + diffuseLighting + specularLighting + emissiveLighting;
     
-    %View and Projection
+   %%%%%%%%%%%%%%%%%%%VIEW AND PROJECTION TRANFORMATION%%%%%%%%%%%%%%%
     triangle = triangle * viewProjMatrix; %Apply view and projection
 
-    %Dividing by W
+    %%%%%%%%%%%%%%%%%%%%DIVIDE BY W%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     for j=1:3
         triangle(j,1:3) = triangle(j,1:3)./triangle(j,4);
     end
     
-    patch(triangle(:,1), triangle(:,2), [rand(1) rand(1) rand(1)], 'EdgeColor', 'none');
+    %%%%%%%%%%%%%%%%%%%PRINT IMAGE%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    patch(triangle(:,1), triangle(:,2), lighting, 'EdgeColor', 'none');
  
 end
