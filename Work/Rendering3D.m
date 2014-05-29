@@ -3,28 +3,28 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%GLOBAL VARIABLES%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Light
-lightPosition = [0 0 -10];
+lightPosition = [-8 0 -4];
 lightColor = [0.8 0.2 0.5];
 
 %Light Effects
-ambientLightColor = [0.1 0.1 0.7];
-ambientM = [0.81 0.81 0.81];
+ambientLightColor = [0.9 0.9 0.9]; 
+ambientM = [0.8 0.8 0.8];
 emissiveM = [0.21 0.30 0.43];
-diffuseM = [0.9, 0.9 0.9];
-specularM = [0.5 0.5 0.5];
+diffuseM = [0.8, 0.8 0.8];
+specularM = [0.9 0.5 0.5];
 S = 1;
 
 %Camera
-cameraPosition = [10 -40 -70];
+cameraPosition = [-6 -6 -6];
 cameraPoint = [0 0 0];
 
 %Object
-objectPosition = [0 0 0];
+objectPosition = [1 0 0];
 objectOrientation = [0 0 0];    %degrees
 
 %Other
 fieldOfView = 80;
-fustrum = [83.9 84];    %[near far]
+fustrum = [29 81];    %[near far]
 aspectRatio = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%GET DATA%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -60,33 +60,31 @@ rotationMatrix = rotX*rotY*rotZ;             %rotation matrix
          
 %%%%%%%%%%%%%%%%%%VIEW TRANSFORMATION%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 upVector = [0 1 0];     % y up, camera -z
-camView = -cameraPosition + cameraPoint;
-camView = camView./norm(camView);
 
-forward = camView; 
+zaxis = cameraPoint-cameraPosition;
+zaxis = zaxis./norm(zaxis);
 
-right = cross(upVector, forward);
-right = right./norm(right)
+xaxis = cross(upVector, zaxis);
+xaxis = xaxis./norm(xaxis);
 
-up = cross(forward, right);
-up = up./norm(up);
- 
-viewMatrix = [right(1) up(1)  forward(1) 0;
-              right(2) up(2)  forward(2) 0;
-              right(3) up(3)  forward(3) 0;
-            -(dot(right,cameraPosition)) -(dot(up,cameraPosition)) -(dot(forward,cameraPosition)) 1]
+yaxis = cross(zaxis, xaxis);
+
+viewMatrix = [xaxis(1) yaxis(1)  zaxis(1) 0;
+              xaxis(2) yaxis(2)  zaxis(2) 0;
+              xaxis(3) yaxis(3)  zaxis(3) 0;
+            -(dot(xaxis,cameraPosition)) -(dot(yaxis,cameraPosition)) -(dot(zaxis,cameraPosition)) 1];
 
 %%%%%%%%%%%%%%%%%%%PROJECTION TRANSFROMATION%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 projectionMatrix = [1/aspectRatio * cotd(fieldOfView/2) 0 0 0;
                     0 cotd(fieldOfView/2) 0 0;
                     0 0 fustrum(2) / (fustrum(2) - fustrum(1)) 1;
-                    0 0 -(fustrum(2) * fustrum(1) / (fustrum(2) - fustrum(1))) 0]
-
-viewProjMatrix = viewMatrix*projectionMatrix;      %Combine the view and projection matrix
+                    0 0 -(fustrum(2) * fustrum(1) / (fustrum(2) - fustrum(1))) 0]; 
+                
+viewProjMatrix = viewMatrix*projectionMatrix;     %Combine the view and projection matrix
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%FIGURE SETUP%%%%%%%%%%%%%%%%%%%
 figure;
-axis([-0.15 0.15 -0.15 0.15])
+axis([-1 1 -1 1])
 axis square
 
 %%%%%%%%%%%%%%%%%%%%APPLY TO ALL POINTS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -120,12 +118,12 @@ for i = 1:length(sceneData)
     ambientLighting = ambientLightColor.*ambientM;
     
     %diffuse lighting
-    diffuseLighting = max(dot(lightVector, normalVector),0)*(lightColor.*diffuseM);
+    diffuseLighting = max(dot(lightVector, normalVector),0)*(diffuseM.*lightColor);
 
     %specular lighting
     hVector = (eyeVector + lightVector) ./ abs(eyeVector + lightVector);
     hVector = hVector / norm(hVector);
-    specularLighting = max(dot(normalVector, hVector), 0)^S * (lightColor .* specularM);
+    specularLighting = max(dot(normalVector, hVector), 0)^S * (specularM.*lightColor);
 
     %emissinve lighting
     emissiveLighting = emissiveM;
@@ -166,8 +164,10 @@ end
 %Find max Value
 maxValArray = max(finalSceneData);
 maxValArray = maxValArray(14:16)';
-maxVal = max(maxValArray)
-finalSceneData = [finalSceneData(:,1:13) finalSceneData(:,14:16)/maxVal];
+maxVal = max(maxValArray);
+if (maxVal > 1)
+    finalSceneData = [finalSceneData(:,1:13) finalSceneData(:,14:16)/maxVal];
+end
 
 %%%%%%%%%%%%%%%%%%%PRINT IMAGE%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 for i=1:length(finalSceneData)
