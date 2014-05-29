@@ -3,33 +3,35 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%GLOBAL VARIABLES%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Light
-lightPosition = [10 10 -10];
-lightColor = [0.52 0.62 0.52];
+lightPosition = [0 0 10];
+lightColor = [0.8 0.8 0.8];
 
 %Light Effects
-ambientLightColor = [0.2 0.2 0.2];
+ambientLightColor = [0.1 0.1 0.1];
 ambientM = [0.21 0.31 0.31];
 emissiveM = [0.21 0.30 0.43];
 diffuseM = [0.52 0.62 0.52];
 specularM = [0.54 0.35 0.46];
-S = 4;
+S = 10;
 
 %Camera
-cameraPosition = [100 100 -100];
+cameraPosition = [20 20 20];
 cameraPoint = [0 0 0];
 
 %Object
-objectPosition = [5 0 0];
-objectOrientation = [90 0 0];    %degrees
+objectPosition = [5 5 5];
+objectOrientation = [180 0 0];    %degrees
 
 %Other
-fieldOfView = 20;
+fieldOfView = 150;
 fustrum = [25 50];    %[near far]
 aspectRatio = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%GET DATA%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 sceneData = importdata('shuttle_breneman_whitfield.raw');   %Get shuttle data
+
+max(sceneData)
    
 %%%%%%%%%%%%%%%%%%%%%%%%%WORLD TRANSFORMATION%%%%%%%%%%%%%%%%%%%%%%%%
 %World Translation
@@ -64,7 +66,7 @@ camView = camView./norm(camView);
 forward = camView; 
 
 right = cross(upVector, forward);
-right = right./norm(right);
+right = right./norm(right)
 
 up = cross(forward, right);
 up = up./norm(up);
@@ -72,7 +74,7 @@ up = up./norm(up);
 viewMatrix = [right(1) up(1)  forward(1) 0;
               right(2) up(2)  forward(2) 0;
               right(3) up(3)  forward(3) 0;
-            -(dot(right,cameraPosition)) -(dot(up,cameraPosition)) -(dot(forward,cameraPosition)) 1];
+            -(dot(right,cameraPosition)) -(dot(up,cameraPosition)) -(dot(forward,cameraPosition)) 1]
 
 %%%%%%%%%%%%%%%%%%%PROJECTION TRANSFROMATION%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 projectionMatrix = [1/aspectRatio * cotd(fieldOfView/2) 0 0 0;
@@ -80,7 +82,7 @@ projectionMatrix = [1/aspectRatio * cotd(fieldOfView/2) 0 0 0;
                     0 0 fustrum(2) / (fustrum(2) - fustrum(1)) 1;
                     0 0 -(fustrum(2) * fustrum(1) / (fustrum(2) - fustrum(1))) 0]
 
-viewProjMatrix = viewMatrix*projectionMatrix;       %Combine the view and projection matrix
+viewProjMatrix = viewMatrix%*projectionMatrix      %Combine the view and projection matrix
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%FIGURE SETUP%%%%%%%%%%%%%%%%%%%
 figure;
@@ -132,7 +134,7 @@ for i = 1:length(sceneData)
     lighting = ambientLighting + diffuseLighting + specularLighting + emissiveLighting;
     
    %%%%%%%%%%%%%%%%%%%VIEW AND PROJECTION TRANFORMATION%%%%%%%%%%%%%%%
-    triangle = triangle * viewMatrix*projectionMatrix %Apply view and projection
+    triangle = triangle * viewProjMatrix; %Apply view and projection
 
     %%%%%%%%%%%%%%%%%%%%DIVIDE BY W%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     for j=1:3
@@ -140,13 +142,13 @@ for i = 1:length(sceneData)
     end
     
     %%%%%%%%%%%%%%%%%%%%%DATA STRUCTURE TO HOLD TRIANGLES%%%%%%%%%%%%%%%
-    avgZ = (triangle(1,3) + triangle(2,3) + triangle(3,3))/3
-    triangleDataPoint = [avgZ triangle(1,:) triangle(2,:) triangle(3,:) lighting]
+    avgZ = (triangle(1,3) + triangle(2,3) + triangle(3,3))/3;
+    triangleDataPoint = [avgZ triangle(1,:) triangle(2,:) triangle(3,:) lighting];
     modifiedSceneData = [modifiedSceneData; triangleDataPoint];
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%Z SORTING%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-modifiedSceneData = sortrows(modifiedSceneData, -1)
+modifiedSceneData = sortrows(modifiedSceneData, -1);
 
 %%%%%%%%%%%%%%%%%%%%%%CLIPPING%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 finalSceneData = [];
@@ -154,10 +156,17 @@ for i=1:length(modifiedSceneData)
        modifiedZ = modifiedSceneData(i, 6:8);
     
       %Check if z is between low and high
-      if (fustrum(1)<modifiedZ(1)<fustrum(2)) || (fustrum(1)< modifiedZ(2)<fustrum(2)) || (fustrum(1)< modifiedZ(3)<fustrum(2))
+      %if (fustrum(1)<modifiedZ(1)<fustrum(2)) || (fustrum(1)< modifiedZ(2)<fustrum(2)) || (fustrum(1)< modifiedZ(3)<fustrum(2))
             finalSceneData = [finalSceneData; modifiedSceneData(i,:)];     %add to final data
-      end
- end
+      %end
+end
+ 
+%%%%%%%%%%%%%%%%%%%%%%NORMALIZE LIGHTING%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Find max Value
+maxValArray = max(finalSceneData);
+maxValArray = maxValArray(14:16)';
+maxVal = max(maxValArray)
+finalSceneData = [finalSceneData(:,1:13) finalSceneData(:,14:16)/maxVal];
 
 %%%%%%%%%%%%%%%%%%%PRINT IMAGE%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 for i=1:length(finalSceneData)
