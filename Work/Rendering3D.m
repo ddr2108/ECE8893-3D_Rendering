@@ -20,11 +20,11 @@ cameraPoint = [0 0 0];
 
 %Object
 objectPosition = [1 0 0];
-objectOrientation = [0 0 0];    %degrees
+objectOrientation = [0 0 90];    %degrees
 
 %Other
 fieldOfView = 80;
-fustrum = [29 81];    %[near far]
+fustrum = [1 6];    %[near far]
 aspectRatio = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%GET DATA%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
