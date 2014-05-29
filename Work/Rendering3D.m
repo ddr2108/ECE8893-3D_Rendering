@@ -3,28 +3,28 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%GLOBAL VARIABLES%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Light
-lightPosition = [-8 0 -4];
-lightColor = [0.8 0.2 0.5];
+lightPosition = [0 3 -3];
+lightColor = [0.5 0.8 0.2];
 
 %Light Effects
 ambientLightColor = [0.9 0.9 0.9]; 
-ambientM = [0.8 0.8 0.8];
+ambientM = [0.2 0.2 0.2];
 emissiveM = [0.21 0.30 0.43];
-diffuseM = [0.8, 0.8 0.8];
-specularM = [0.9 0.5 0.5];
-S = 1;
+diffuseM = [0.9, 0.9 0.9];
+specularM = [0.8 0.8 0.8];
+S = 3;
 
 %Camera
-cameraPosition = [-6 -6 -6];
+cameraPosition = [8 5 -8];
 cameraPoint = [0 0 0];
 
 %Object
-objectPosition = [1 0 0];
-objectOrientation = [0 0 90];    %degrees
+objectPosition = [0 0 0];
+objectOrientation = [180 0 0];    %degrees
 
 %Other
 fieldOfView = 80;
-fustrum = [1 6];    %[near far]
+fustrum = [1 50];    %[near far]
 aspectRatio = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%GET DATA%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
