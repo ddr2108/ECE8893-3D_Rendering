@@ -3,28 +3,28 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%GLOBAL VARIABLES%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Light
-lightPosition = [0 0 10];
-lightColor = [0.8 0.8 0.8];
+lightPosition = [0 0 -10];
+lightColor = [0.8 0.2 0.5];
 
 %Light Effects
-ambientLightColor = [0.1 0.1 0.1];
-ambientM = [0.21 0.31 0.31];
+ambientLightColor = [0.1 0.1 0.7];
+ambientM = [0.81 0.81 0.81];
 emissiveM = [0.21 0.30 0.43];
-diffuseM = [0.52 0.62 0.52];
-specularM = [0.54 0.35 0.46];
-S = 10;
+diffuseM = [0.9, 0.9 0.9];
+specularM = [0.5 0.5 0.5];
+S = 1;
 
 %Camera
-cameraPosition = [20 20 20];
+cameraPosition = [10 -40 -70];
 cameraPoint = [0 0 0];
 
 %Object
-objectPosition = [5 5 5];
-objectOrientation = [180 0 0];    %degrees
+objectPosition = [0 0 0];
+objectOrientation = [0 0 0];    %degrees
 
 %Other
-fieldOfView = 150;
-fustrum = [25 50];    %[near far]
+fieldOfView = 80;
+fustrum = [83.9 84];    %[near far]
 aspectRatio = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%GET DATA%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -36,9 +36,9 @@ max(sceneData)
 %%%%%%%%%%%%%%%%%%%%%%%%%WORLD TRANSFORMATION%%%%%%%%%%%%%%%%%%%%%%%%
 %World Translation
 worldTranslationMatrix = [1 0 0 0;
-             0 1 0 0;
-             0 0 1 0;
-             objectPosition 1];
+                         0 1 0 0;
+                         0 0 1 0;
+                         objectPosition 1];
          
 %World Rotation
 rotX = [1 0 0 0;
@@ -82,11 +82,11 @@ projectionMatrix = [1/aspectRatio * cotd(fieldOfView/2) 0 0 0;
                     0 0 fustrum(2) / (fustrum(2) - fustrum(1)) 1;
                     0 0 -(fustrum(2) * fustrum(1) / (fustrum(2) - fustrum(1))) 0]
 
-viewProjMatrix = viewMatrix%*projectionMatrix      %Combine the view and projection matrix
+viewProjMatrix = viewMatrix*projectionMatrix;      %Combine the view and projection matrix
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%FIGURE SETUP%%%%%%%%%%%%%%%%%%%
 figure;
-%axis([-1 1 -1 1])
+axis([-0.15 0.15 -0.15 0.15])
 axis square
 
 %%%%%%%%%%%%%%%%%%%%APPLY TO ALL POINTS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -152,13 +152,14 @@ modifiedSceneData = sortrows(modifiedSceneData, -1);
 
 %%%%%%%%%%%%%%%%%%%%%%CLIPPING%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 finalSceneData = [];
+fustrum = [0 1];        %Check for range 0 1 because normalized
 for i=1:length(modifiedSceneData)
        modifiedZ = modifiedSceneData(i, 6:8);
     
       %Check if z is between low and high
-      %if (fustrum(1)<modifiedZ(1)<fustrum(2)) || (fustrum(1)< modifiedZ(2)<fustrum(2)) || (fustrum(1)< modifiedZ(3)<fustrum(2))
+      if (fustrum(1)<=modifiedZ(1) && modifiedZ(1)<=fustrum(2)) || (fustrum(1)<=modifiedZ(2) && modifiedZ(2)<=fustrum(2)) || (fustrum(1)<=modifiedZ(3) && modifiedZ(3)<=fustrum(2))
             finalSceneData = [finalSceneData; modifiedSceneData(i,:)];     %add to final data
-      %end
+      end
 end
  
 %%%%%%%%%%%%%%%%%%%%%%NORMALIZE LIGHTING%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
