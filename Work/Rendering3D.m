@@ -3,7 +3,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%GLOBAL VARIABLES%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Light
-lightPosition = [0 3 -3];
+lightPosition = [-3 3 0];
 lightColor = [0.5 0.8 0.2];
 
 %Light Effects
@@ -15,7 +15,7 @@ specularM = [0.8 0.8 0.8];
 S = 3;
 
 %Camera
-cameraPosition = [8 5 -8];
+cameraPosition = [0 10 -10];
 cameraPoint = [0 0 0];
 
 %Object
@@ -24,7 +24,7 @@ objectOrientation = [180 0 0];    %degrees
 
 %Other
 fieldOfView = 80;
-fustrum = [1 50];    %[near far]
+fustrum = [21 25];    %[near far]
 aspectRatio = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%GET DATA%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -136,7 +136,7 @@ for i = 1:length(sceneData)
 
     %%%%%%%%%%%%%%%%%%%%DIVIDE BY W%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     for j=1:3
-        triangle(j,1:3) = triangle(j,1:3)./triangle(j,4);
+        triangle(j,1:4) = triangle(j,1:4)./triangle(j,4);
     end
     
     %%%%%%%%%%%%%%%%%%%%%DATA STRUCTURE TO HOLD TRIANGLES%%%%%%%%%%%%%%%
@@ -150,9 +150,9 @@ modifiedSceneData = sortrows(modifiedSceneData, -1);
 
 %%%%%%%%%%%%%%%%%%%%%%CLIPPING%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 finalSceneData = [];
-fustrum = [0 1];        %Check for range 0 1 because normalized
+fustrum = [-1 1];        %Check for range 0 1 because normalized
 for i=1:length(modifiedSceneData)
-       modifiedZ = modifiedSceneData(i, 6:8);
+       modifiedZ = [modifiedSceneData(i, 4) modifiedSceneData(i, 8) modifiedSceneData(i, 12)];
     
       %Check if z is between low and high
       if (fustrum(1)<=modifiedZ(1) && modifiedZ(1)<=fustrum(2)) || (fustrum(1)<=modifiedZ(2) && modifiedZ(2)<=fustrum(2)) || (fustrum(1)<=modifiedZ(3) && modifiedZ(3)<=fustrum(2))
@@ -162,7 +162,7 @@ end
  
 %%%%%%%%%%%%%%%%%%%%%%NORMALIZE LIGHTING%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Find max Value
-maxValArray = max(finalSceneData);
+maxValArray = max(finalSceneData)
 maxValArray = maxValArray(14:16)';
 maxVal = max(maxValArray);
 if (maxVal > 1)
@@ -170,7 +170,7 @@ if (maxVal > 1)
 end
 
 %%%%%%%%%%%%%%%%%%%PRINT IMAGE%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-for i=1:length(finalSceneData)
+for i=1:size(finalSceneData)
       lighting = finalSceneData(i,14:16);
       triangle = [finalSceneData(i, 2:4); finalSceneData(i, 6:8); finalSceneData(i, 10:12)];
            
